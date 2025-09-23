@@ -1,22 +1,50 @@
-SRC = $(wildcard src/*.c)
-OBJ = $(patsubst src/%.c,obj/%.o,$(SRC))
-LIBOBJ = obj/mystrfunctions.o obj/myfilefunctions.o
-LIB = lib/libmyutils.a
-TARGET = bin/client_static
+# Directories
+SRC_DIR = src
+OBJ_DIR = obj
+BIN_DIR = bin
+LIB_DIR = lib
+INCLUDE_DIR = include
 
-CC = gcc
-CFLAGS = -Iinclude
+# Source files
+SRC = $(SRC_DIR)/main.c $(SRC_DIR)/mystrfunctions.c $(SRC_DIR)/myfilefunctions.c $(SRC_DIR)/mystringfunctions.c
 
-all: $(TARGET)
+# Object files
+OBJ = $(OBJ_DIR)/main.o $(OBJ_DIR)/mystrfunctions.o $(OBJ_DIR)/myfilefunctions.o $(OBJ_DIR)/mystringfunctions.o
 
-$(TARGET): obj/main.o $(LIB)
-	$(CC) $(CFLAGS) -o $(TARGET) obj/main.o -Llib -lmyutils
+# Static library
+STATIC_LIB = $(LIB_DIR)/libmyutils.a
 
-$(LIB): $(LIBOBJ)
-	ar rcs $(LIB) $(LIBOBJ)
+# Dynamic library
+DYNAMIC_LIB = $(LIB_DIR)/libmyutils.so
 
-obj/%.o: src/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+# Default target
+all: static client_static dynamic client_dynamic
 
+# Create object files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	mkdir -p $(OBJ_DIR)
+	gcc -I$(INCLUDE_DIR) -fPIC -c $< -o $@
+
+# Create static library
+$(STATIC_LIB): $(OBJ_DIR)/mystrfunctions.o $(OBJ_DIR)/myfilefunctions.o $(OBJ_DIR)/mystringfunctions.o
+	mkdir -p $(LIB_DIR)
+	ar rcs $@ $^
+
+# Build static client
+client_static: $(OBJ_DIR)/main.o $(STATIC_LIB)
+	mkdir -p $(BIN_DIR)
+	gcc -o $(BIN_DIR)/client_static $(OBJ_DIR)/main.o -L$(LIB_DIR) -lmyutils
+
+# Create dynamic library
+$(DYNAMIC_LIB): $(OBJ_DIR)/mystrfunctions.o $(OBJ_DIR)/myfilefunctions.o $(OBJ_DIR)/mystringfunctions.o
+	mkdir -p $(LIB_DIR)
+	gcc -shared -o $@ $^
+
+# Build dynamic client
+client_dynamic: $(OBJ_DIR)/main.o $(DYNAMIC_LIB)
+	mkdir -p $(BIN_DIR)
+	gcc -o $(BIN_DIR)/client_dynamic $(OBJ_DIR)/main.o -L$(LIB_DIR) -lmyutils -Wl,-rpath=./lib
+
+# Clean all build files
 clean:
-	rm -f obj/*.o $(TARGET) $(LIB)
+	rm -rf $(OBJ_DIR)/* $(BIN_DIR)/* $(LIB_DIR)/*
