@@ -1,0 +1,12 @@
+.TH MYSTRCAT 3 "2025-09-23" "BCSF22M520-OS-A01" "Client Library Functions"
+.SH NAME
+mystrcat \- concatenate two strings
+.SH SYNOPSIS
+.B #include "mystrfunctions.h"
+.P
+int mystrcat(char* dest, const char* src);
+.SH DESCRIPTION
+Appends the string src to the end of dest. Returns the new length of dest.
+.SH AUTHOR
+Abdullah Rao <bcsf22m520@pucit.edu.pk>
+

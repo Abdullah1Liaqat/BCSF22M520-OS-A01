@@ -1,0 +1,12 @@
+.TH MYGREP 3 "2025-09-23" "BCSF22M520-OS-A01" "Client Library Functions"
+.SH NAME
+mygrep \- search lines containing a string in a file
+.SH SYNOPSIS
+.B #include "myfilefunctions.h"
+.P
+int mygrep(FILE* fp, const char* search_str, char*** matches);
+.SH DESCRIPTION
+Searches for lines containing search_str in the file pointer fp.
+Fills the matches array with matching lines. Returns the count of matches, or -1 on failure.
+.SH AUTHOR
+Abdullah Rao <bcsf22m520@pucit.edu.pk>
