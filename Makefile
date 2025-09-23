@@ -1,29 +1,22 @@
-# Compiler
+SRC = $(wildcard src/*.c)
+OBJ = $(patsubst src/%.c,obj/%.o,$(SRC))
+LIBOBJ = obj/mystrfunctions.o obj/myfilefunctions.o
+LIB = lib/libmyutils.a
+TARGET = bin/client_static
+
 CC = gcc
+CFLAGS = -Iinclude
 
-# Directories
-SRC_DIR = src
-OBJ_DIR = obj
-BIN_DIR = bin
-INC_DIR = include
-
-# Files
-SOURCES = $(wildcard $(SRC_DIR)/*.c)
-OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SOURCES))
-TARGET = $(BIN_DIR)/client
-
-# Default rule
 all: $(TARGET)
 
-# Link all object files into final executable
-$(TARGET): $(OBJECTS)
-	$(CC) -o $@ $^
+$(TARGET): obj/main.o $(LIB)
+	$(CC) $(CFLAGS) -o $(TARGET) obj/main.o -Llib -lmyutils
 
-# Compile each .c file into .o file
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
-	$(CC) -I$(INC_DIR) -c $< -o $@
+$(LIB): $(LIBOBJ)
+	ar rcs $(LIB) $(LIBOBJ)
 
-# Clean up build
+obj/%.o: src/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	rm -f $(OBJ_DIR)/*.o $(TARGET)
+	rm -f obj/*.o $(TARGET) $(LIB)
